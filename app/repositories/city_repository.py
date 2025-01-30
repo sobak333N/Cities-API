@@ -26,14 +26,18 @@ class CityRepository(IRepository[City]):
         return city
 
     async def delete(
-        self, id: int, session: AsyncSession
+        self, model: City, session: AsyncSession
     ) -> None:
-        pass
+        await session.delete(model)
+        await session.commit()
 
     async def get_by_id(
         self, id: int, session: AsyncSession
     ) -> Optional[City]:
-        pass
+        stmt = (select(City).where(City.city_id == id))
+        result = await session.execute(stmt)
+        city = result.scalars().one_or_none()
+        return city
 
     async def get_chunk(
         self, offset: int, limit: int, session: AsyncSession

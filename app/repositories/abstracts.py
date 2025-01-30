@@ -23,5 +23,5 @@ class IRepository(ABC, Generic[T]):
         pass
 
     @abstractmethod
-    async def delete(self, id: int, session: AsyncSession) -> None:
+    async def delete(self, model: T, session: AsyncSession) -> None:
         pass

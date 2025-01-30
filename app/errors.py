@@ -22,5 +22,5 @@ class ForeignServiceExc(CustomHttpExc):
 
 class MissingParametrExc(CustomHttpExc):
     def __init__(self, field_name: str):
-        details = f"Не заполнено поле {field_name}"
+        details = f"Пропущено или не валидно {field_name}"
         super().__init__(details, status=400)

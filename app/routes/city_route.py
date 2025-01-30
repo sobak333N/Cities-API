@@ -5,12 +5,12 @@ from aiohttp_apispec import (
 
 from app.schemas import ( 
     CityNameSchema, CitySchema, CityQuerySchema, CityListResponseSchema,
+    EmptySchema,
 )
 from app.services import CityService
 from app.errors import MissingParametrExc
-# class NearestCitiesResponseSchema(web.Schema):
-#     city1 = fields.Nested(CitySchema)
-#     city2 = fields.Nested(CitySchema)
+
+
 CITY_API_PREFIX = "/city"
 city_service = CityService()
 
@@ -53,8 +53,22 @@ async def get_list_cities(request: web.Request):
     )    
 
 
+@docs(
+    tags=["Cities"],
+    summary="Get List of cities",
+    description="Получает список",
+)
+@response_schema(EmptySchema, 204)
+async def delete_city(request: web.Request):
+    city_id = request.match_info.get("city_id")
+    if not city_id or not city_id.isdigit():
+        raise MissingParametrExc(field_name="city_id")
+    await city_service.delete(int(city_id))
+    return web.json_response(status=204)   
+
+
 def setup_cities_routes(app: web.Application):
-    # app.router.add_post('/city/nearest_cities', get_nearest_cities)
     app.router.add_post(f'{CITY_API_PREFIX}/post', post_city)
     app.router.add_get(f'{CITY_API_PREFIX}/get/', get_list_cities)
-
+    app.router.add_delete(f'{CITY_API_PREFIX}/delete/{{city_id}}', delete_city)
+    # app.router.add_post('/city/nearest_cities', get_nearest_cities)

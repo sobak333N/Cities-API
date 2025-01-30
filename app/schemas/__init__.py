@@ -4,3 +4,4 @@ from .city_name import (
 from .city import (
     CitySchema, CityModel, CityQuerySchema, CityListResponseSchema
 )
+from .other import EmptySchema

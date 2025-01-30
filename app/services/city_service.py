@@ -4,10 +4,10 @@ from app import config
 from app.models import City
 from app.repositories import CityRepository
 from app.schemas import (
-    CityNameModel, CityNameSchema, CityModel, CitySchema
+    CityNameModel, CityNameSchema, CityModel
 )
 from app.db.core import async_session_maker
-from app.errors import NotUniqueCityExc 
+from app.errors import NotUniqueCityExc, NoSuchCityExc
 from app.config import Config
 from .abstracts import IService
 from .external_fetcher import APIDataFetcher
@@ -59,3 +59,10 @@ class CityService(IService[City]):
                     longtitude=city.longtitude
                 ) for city in cities
             ]
+
+    async def delete(self, city_id: int) -> None:
+        async with async_session_maker() as db_session:
+            city = await self.repository.get_by_id(city_id, db_session)
+            if not city:
+                raise NoSuchCityExc()
+            await self.repository.delete(city, db_session)
