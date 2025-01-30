@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_INNER_PORT: int
     FETCH_URL: str
+    PAGE_LIMIT: int
     # API_KEY: str
     # BEARER_TOKEN: str
 

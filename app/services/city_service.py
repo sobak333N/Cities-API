@@ -1,3 +1,6 @@
+from typing import List, Tuple
+
+from app import config
 from app.models import City
 from app.repositories import CityRepository
 from app.schemas import (
@@ -5,6 +8,7 @@ from app.schemas import (
 )
 from app.db.core import async_session_maker
 from app.errors import NotUniqueCityExc 
+from app.config import Config
 from .abstracts import IService
 from .external_fetcher import APIDataFetcher
 
@@ -40,5 +44,18 @@ class CityService(IService[City]):
                 longtitude=city.longtitude
             )
 
-
-
+    async def get_page(self, page: int) -> Tuple[int, List[CityModel]]:
+        async with async_session_maker() as db_session:
+            total_count = await self.repository.get_count(db_session)
+            offset = (page - 1) * Config.PAGE_LIMIT
+            cities = await self.repository.get_chunk(
+                offset, Config.PAGE_LIMIT, db_session
+            )
+            return total_count, [
+                CityModel(
+                    city_id=city.city_id,
+                    name=city.name,
+                    latitude=city.latitude,
+                    longtitude=city.longtitude
+                ) for city in cities
+            ]

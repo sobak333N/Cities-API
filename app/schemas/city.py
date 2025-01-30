@@ -29,3 +29,14 @@ class CitySchema(Schema):
     @post_load
     def make_city(self, data, **kwargs):
         return CityModel(**data)
+
+
+class CityQuerySchema(Schema):
+    """Схема запроса для пагинации"""
+    page = fields.Integer(required=True, metadata={"description": "Номер страницы", "example": 1})
+
+
+class CityListResponseSchema(Schema):
+    """Схема ответа, возвращает список городов и общее количество"""
+    total_count = fields.Integer(metadata={"description": "Общее количество городов"})
+    cities = fields.List(fields.Nested(CitySchema), metadata={"description": "Список городов"})

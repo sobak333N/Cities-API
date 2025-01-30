@@ -18,3 +18,9 @@ class NoSuchCityExc(CustomHttpExc):
 class ForeignServiceExc(CustomHttpExc):
     def __init__(self, details: str = "Ошибка в работе внешнего сервиса"):
         super().__init__(details, status=503)
+
+
+class MissingParametrExc(CustomHttpExc):
+    def __init__(self, field_name: str):
+        details = f"Не заполнено поле {field_name}"
+        super().__init__(details, status=400)

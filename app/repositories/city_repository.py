@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func
 
 from .abstracts import IRepository
 from app.models import City
@@ -28,13 +29,20 @@ class CityRepository(IRepository[City]):
         self, id: int, session: AsyncSession
     ) -> None:
         pass
-    
+
     async def get_by_id(
         self, id: int, session: AsyncSession
     ) -> Optional[City]:
         pass
-    
+
     async def get_chunk(
         self, offset: int, limit: int, session: AsyncSession
     ) -> List[City]:
-        pass
+        stmt = (select(City).order_by(City.city_id).offset(offset).limit(limit))
+        result = await session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_count(self, session: AsyncSession) -> int:
+        stmt = (select(func.count()).select_from(City))
+        result = await session.execute(stmt)
+        return result.scalar() or 0
