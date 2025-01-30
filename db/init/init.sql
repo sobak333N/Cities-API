@@ -4,3 +4,5 @@ CREATE TABLE city (
     latitude FLOAT NOT NULL,
     longtitude FLOAT NOT NULL
 );
+
+CREATE INDEX idx_city_name ON city USING HASH(name)

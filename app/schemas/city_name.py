@@ -1,4 +1,12 @@
-from marshmallow import Schema, fields, validates, ValidationError
+from dataclasses import dataclass 
+import string
+
+from marshmallow import Schema, fields, post_load, validates, ValidationError
+
+
+@dataclass
+class CityNameModel:
+    name: str
 
 
 class CityNameSchema(Schema):
@@ -14,3 +22,8 @@ class CityNameSchema(Schema):
         """Дополнительная проверка, чтобы строка не содержала только пробелы"""
         if value.strip() == "":
             raise ValidationError("Название города не может быть пустым или состоять только из пробелов.")
+
+    @post_load
+    def make_city(self, data, **kwargs):
+        data["name"] = string.capwords(data["name"].strip())
+        return CityNameModel(**data)

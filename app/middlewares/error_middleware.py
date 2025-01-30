@@ -1,7 +1,7 @@
 
 from aiohttp import web
-# import logging
 from marshmallow import ValidationError
+from app.errors import CustomHttpExc
 
 
 @web.middleware
@@ -14,8 +14,8 @@ async def error_middleware(request, handler):
         return web.json_response(
             {"error": "Not valid data", "details": err.messages}, status=422
         )
-    except web.HTTPException as ex:
-        return web.json_response({"error": ex.reason}, status=ex.status)
-    # except Exception as e:
-    #     logging.exception("Unexpected server error")
-    #     return web.json_response({"error": "Internal Server Error", "details": str(e)}, status=500)
+    except CustomHttpExc as ex:
+        return web.json_response(
+            {"error": ex.details, "details": ex.details},
+            status=ex.status
+        )
