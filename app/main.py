@@ -1,39 +1,22 @@
 from aiohttp import web
-from aiohttp_apispec import (
-    setup_aiohttp_apispec,
-    docs,
-    request_schema,
-    response_schema,
-)
-from marshmallow import Schema, fields
-
+from app.routes import setup_routes
+from app.middlewares import error_middleware
 
 # Определение схемы ответа
-class HelloSchema(Schema):
-    message = fields.Str()
-
-# Обработчик маршрута с документацией
-@docs(
-    tags=["Hello"],
-    summary="Say hello",
-    description="Возвращает приветственное сообщение",
-    responses={200: {"description": "Успешный ответ", "schema": HelloSchema}},
-)
-async def hello(request):
-    return web.json_response({"message": "Hello, aiohttp with apispec!"})
-
-app = web.Application()
-app.router.add_get('/hello', hello)
 
 # Настройка aiohttp-apispec
-setup_aiohttp_apispec(
-    app=app,
-    title="My API",
-    version="v1",
-    url="/api/docs/swagger.json",  # URL для спецификации OpenAPI
-    swagger_path="/api/docs",  # URL для Swagger UI
-)
+# setup_aiohttp_apispec(
+#     app=app,
+#     title="My API",
+#     version="v1",
+#     url="/api/docs/swagger.json",  # URL для спецификации OpenAPI
+#     swagger_path="/api/docs",  # URL для Swagger UI
+# )
+def init_app():
+    app = web.Application(middlewares=[error_middleware])
+    setup_routes(app)
+    return app
+
 
 if __name__ == '__main__':
-    print("STARTER")
-    web.run_app(app, host='0.0.0.0', port=8000)
+    web.run_app(init_app(), host='0.0.0.0', port=8000)
