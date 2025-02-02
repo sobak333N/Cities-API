@@ -14,7 +14,7 @@ from .external_fetcher import APIDataFetcher
 
 class CityService(IService[City]):
     def __init__(
-        self, 
+        self,
         city_repository: CityRepository = CityRepository(),
         data_fetcher: APIDataFetcher = APIDataFetcher()
     ):
