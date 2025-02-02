@@ -36,6 +36,9 @@ class CitySchema(Schema):
     def make_city(self, data, **kwargs):
         return CityModel(**data)
 
+    class Meta:
+        ordered = True
+
 
 class CityQuerySchema(Schema):
     """Схема запроса для пагинации"""
@@ -64,6 +67,6 @@ class LatitudeLongtitudeSchema(Schema):
     @post_load
     def make_dot(self, data, **kwargs):
         return DotModel(**data)
-    
+
     class Meta:
         ordered = True

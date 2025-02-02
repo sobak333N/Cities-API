@@ -5,7 +5,7 @@ from aiohttp_apispec import (
 
 from app.schemas import ( 
     CityNameSchema, CitySchema, CityQuerySchema, CityListResponseSchema,
-    EmptySchema, LatitudeLongtitudeSchema
+    EmptySchema, LatitudeLongtitudeSchema,
 )
 from app.services import CityService
 from app.errors import MissingParametrExc

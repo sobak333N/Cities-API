@@ -11,7 +11,9 @@ class NotUniqueCityExc(CustomHttpExc):
 
 
 class NoSuchCityExc(CustomHttpExc):
-    def __init__(self, details: str = "Не удалось найти такой город, проверьте данные"):
+    def __init__(
+        self, details: str = "Не удалось найти такой город, проверьте данные"
+    ):
         super().__init__(details, status=404)
 
 
