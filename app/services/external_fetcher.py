@@ -3,12 +3,12 @@ from typing import Tuple
 from aiohttp import ClientSession
 
 from .abstracts import IDataFetcher
-from app.config import Config
+from app.config import config
 from app.errors import NoSuchCityExc, ForeignServiceExc
 
 
 class APIDataFetcher(IDataFetcher):
-    def __init__(self, base_url: str = Config.FETCH_URL):
+    def __init__(self, base_url: str = config.FETCH_URL):
         self.base_url = base_url
 
     async def fetch(self, city: str) -> Tuple[float, float]:

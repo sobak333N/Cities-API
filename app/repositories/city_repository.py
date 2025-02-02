@@ -6,6 +6,7 @@ from sqlalchemy import func
 
 from .abstracts import IRepository
 from app.models import City
+from app.config import config
 
 
 class CityRepository(IRepository[City]):
@@ -50,3 +51,25 @@ class CityRepository(IRepository[City]):
         stmt = (select(func.count()).select_from(City))
         result = await session.execute(stmt)
         return result.scalar() or 0
+
+    async def get_closest_cities(
+        self, latitude: float, longtitude: float, session: AsyncSession,
+    ) -> List[City]:
+        distance_expr = 2 * 6371 * func.asin(
+            func.sqrt(
+                func.pow(func.sin(func.radians((City.latitude - latitude) / 2)), 2) +
+                func.cos(func.radians(latitude)) *
+                func.cos(func.radians(City.latitude)) *
+                func.pow(func.sin(func.radians((City.longtitude - longtitude) / 2)), 2)
+            )
+        )
+        stmt = (
+            select(
+                City,
+                distance_expr
+            )
+            .order_by(distance_expr)
+            .limit(config.CITIES_LIMIT)
+        )
+        result = await session.execute(stmt)
+        return list(result.scalars().all())

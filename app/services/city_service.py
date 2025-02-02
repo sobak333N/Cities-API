@@ -1,14 +1,13 @@
 from typing import List, Tuple
 
-from app import config
 from app.models import City
 from app.repositories import CityRepository
 from app.schemas import (
-    CityNameModel, CityNameSchema, CityModel
+    CityNameModel, CityNameSchema, CityModel, LatitudeLongtitudeSchema
 )
 from app.db.core import async_session_maker
 from app.errors import NotUniqueCityExc, NoSuchCityExc
-from app.config import Config
+from app.config import config
 from .abstracts import IService
 from .external_fetcher import APIDataFetcher
 
@@ -47,9 +46,9 @@ class CityService(IService[City]):
     async def get_page(self, page: int) -> Tuple[int, List[CityModel]]:
         async with async_session_maker() as db_session:
             total_count = await self.repository.get_count(db_session)
-            offset = (page - 1) * Config.PAGE_LIMIT
+            offset = (page - 1) * config.PAGE_LIMIT
             cities = await self.repository.get_chunk(
-                offset, Config.PAGE_LIMIT, db_session
+                offset, config.PAGE_LIMIT, db_session
             )
             return total_count, [
                 CityModel(
@@ -66,3 +65,19 @@ class CityService(IService[City]):
             if not city:
                 raise NoSuchCityExc()
             await self.repository.delete(city, db_session)
+
+    async def get_closest_cities(
+        self, dot_schema: LatitudeLongtitudeSchema
+    ) -> List[CityModel]:
+        async with async_session_maker() as db_session:
+            cities = await self.repository.get_closest_cities(
+                dot_schema.latitude, dot_schema.longtitude, db_session
+            )
+            return [
+                CityModel(
+                    city_id=city.city_id,
+                    name=city.name,
+                    latitude=city.latitude,
+                    longtitude=city.longtitude
+                ) for city in cities
+            ]

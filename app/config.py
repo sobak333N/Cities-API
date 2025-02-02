@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     POSTGRES_INNER_PORT: int
     FETCH_URL: str
     PAGE_LIMIT: int
+    CITIES_LIMIT: int
     # API_KEY: str
     # BEARER_TOKEN: str
 
@@ -16,9 +17,9 @@ class Settings(BaseSettings):
     def DATABASE_URL(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}/{self.POSTGRES_DB}"
 
-    class Config:
+    class config:
         env_file = ".env"
         extra = "ignore"
 
 
-Config = Settings()
+config = Settings()
