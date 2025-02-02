@@ -55,8 +55,8 @@ async def get_list_cities(request: web.Request):
 
 @docs(
     tags=["Cities"],
-    summary="Get List of cities",
-    description="Получает список",
+    summary="Delete city by id",
+    description="Удаляет город по уникальному идентификатору",
 )
 @response_schema(EmptySchema, 204)
 async def delete_city(request: web.Request):
