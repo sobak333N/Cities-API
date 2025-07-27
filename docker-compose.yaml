@@ -1,55 +1,99 @@
-  services:
+version: "3.9"      
 
-    server:
-      build:
-        context: .
-        dockerfile: ./app/app.Dockerfile
-      restart: always
-      networks:
-        - app-network
-      volumes:
-        - ./:/app
-      env_file: .env
-      environment:
-        - PYTHONUNBUFFERED=1
-      ports:
-        - 8000:8000
-      depends_on:
-        db: 
-          condition: service_healthy
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./app/app.Dockerfile
+    restart: always
+    networks: [app-network]
+    volumes:
+      - ./:/app
+    env_file: .env
+    environment:
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
 
-    db:
-      image: postgres:15
-      restart: always
-      environment:
-        POSTGRES_USER: ${POSTGRES_USER}
-        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-        POSTGRES_DB: ${POSTGRES_DB}
-      ports:
-        - "${POSTGRES_OUTER_PORT}:${POSTGRES_INNER_PORT}"
-      networks:
-        - app-network
-      volumes:
-        - ./db/init:/docker-entrypoint-initdb.d:ro
-      healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_OUTER_PORT}:${POSTGRES_INNER_PORT}"
+    networks: [app-network]
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-    nginx:
-      image: nginx:alpine
-      restart: always
-      ports:
-        - 80:80
-      volumes:
-        - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      depends_on:
-        - server
-      networks:
-        - app-network
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on: [server]
+    networks: [app-network]
 
-  networks:
-    app-network:
-      driver: bridge
-      
+  load-tester:
+    build:
+      context: ./load-tester        
+      dockerfile: Dockerfile        
+    restart: on-failure
+    networks: [app-network]
+    environment:
+      TARGET_URL: "http://nginx/city/get/"   
+    ports:
+      - "8001:8001"
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    restart: unless-stopped
+    networks: [app-network]
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_INNER_PORT}/${POSTGRES_DB}?sslmode=disable"
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    restart: unless-stopped
+    networks: [app-network]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
+  
+  grafana:
+    image: grafana/grafana:11.0.0
+    restart: unless-stopped
+    networks: [app-network]
+    ports:
+      - "3000:3000"               
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  pgdata:
+  grafana-data:
+
+networks:
+  app-network:
+    driver: bridge
