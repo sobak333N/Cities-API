@@ -1,10 +1,13 @@
 from aiohttp import web
 from app.routes import setup_routes
 from app.middlewares import error_middleware
+from app.metrics import setup_metrics
 
 
 def init_app():
     app = web.Application(middlewares=[error_middleware])
+    setup_metrics(app)
+    app.middlewares.append(error_middleware)
     setup_routes(app)
     return app
 
