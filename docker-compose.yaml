@@ -75,6 +75,24 @@ services:
     volumes:
       - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./infra/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
+  
+  grafana:
+    image: grafana/grafana:11.0.0
+    restart: unless-stopped
+    networks: [app-network]
+    ports:
+      - "3000:3000"               
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  pgdata:
+  grafana-data:
 
 networks:
   app-network:
