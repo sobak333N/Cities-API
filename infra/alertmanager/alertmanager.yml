@@ -1,0 +1,22 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 1h
+  receiver: 'telegram'
+
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - bot_token:   ${TELEGRAM_BOT_TOKEN}
+        chat_id:     ${TELEGRAM_CHAT_ID}
+        message:     |
+          🚨 *Alert:* {{ .CommonAnnotations.summary }}
+          • *Alert name:* {{ .CommonLabels.alertname }}
+          • *Severity:* {{ .CommonLabels.severity }}
+          • *Instance:* {{ .CommonLabels.instance }}
+          • *Time:* {{ .Alerts.Firing | first .StartsAt }}
+        parse_mode: MarkdownV2

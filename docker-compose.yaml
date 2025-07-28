@@ -77,7 +77,10 @@ services:
     volumes:
       - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./infra/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
-  
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-lifecycle"
+      
   grafana:
     image: grafana/grafana:11.0.0
     restart: unless-stopped
@@ -91,6 +94,17 @@ services:
       - ./infra/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./infra/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+   alertmanager:
+    image: prom/alertmanager:v0.25.0
+    restart: unless-stopped
+    networks: [app-network]
+    ports:
+      - "9093:9093"
+    env_file:
+      - .env
+    volumes:
+      - ./infra/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
 
 volumes:
   pgdata:
