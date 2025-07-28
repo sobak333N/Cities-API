@@ -98,6 +98,7 @@ document.getElementById('frm').addEventListener('submit',async e=>{
 </script>
 """
 
-@app.get("/ui", response_class=HTMLResponse)
+@app.get("/ui/", response_class=HTMLResponse)
 async def ui():  
     return HTML
+
