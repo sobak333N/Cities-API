@@ -53,7 +53,6 @@ docker compose up
 | `http://localhost/ui` | **http://51.250.88.180/ui** |
 | `http://localhost:9090` | **http://51.250.88.180:9090** |
 | `http://localhost:3000` | **http://51.250.88.180:3000** |
-| `http://localhost:9093` | **http://51.250.88.180:9093** |
 
 ## 3. Нагрузочный сервис и наблюдаемость
 
