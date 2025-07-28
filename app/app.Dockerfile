@@ -8,5 +8,5 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . .
-CMD ["gunicorn", "app.main:init_app()", "-w", "4",
-     "-k", "aiohttp.GunicornWebWorker", "--bind", "0.0.0.0:8000"]
+COPY . .
+CMD ["gunicorn", "app.main:init_app()", "-w", "4", "-k", "aiohttp.GunicornWebWorker", "--bind", "0.0.0.0:8000"]
