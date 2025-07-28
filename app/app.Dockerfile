@@ -5,7 +5,6 @@ RUN mkdir -p $PROMETHEUS_MULTIPROC_DIR && chmod 777 $PROMETHEUS_MULTIPROC_DIR
 VOLUME ["/tmp/prometheus_multiproc"]
 
 WORKDIR /app
-COPY requirements.txt ./
 RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . .
 COPY . .
