@@ -13,7 +13,7 @@ receivers:
     telegram_configs:
       - bot_token:   "8350074658:AAGJ8Vw-DLqtYEouAcZoafnFmmmS5PhPoiU"
         chat_id:     -1002808461142
-        parse_mode:  MarkdownV2
+        parse_mode:  Markdown
         message: |
           {{ range .Alerts }}
           🚨 *Alert:* {{ .Annotations.summary }}
