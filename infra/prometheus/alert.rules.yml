@@ -1,24 +1,28 @@
 groups:
-- name: o11y-required
-  rules:
-  - alert: HighP99Latency
-    expr: histogram_quantile(
+  - name: o11y-required     
+    rules:                  
+      - alert: HighP99Latency
+        expr: |             
+          histogram_quantile(
             0.99,
-            sum(rate(http_request_duration_seconds_bucket{handler="/city/get/"}[30s])) by (le)
+            sum(
+              rate(http_request_duration_seconds_bucket{handler="/city/get/"}[30s])
+            ) by (le)
           ) > 0.5
-    for: 1m
-    labels: { severity: "critical" }
-    annotations:
-      summary: "p99 latency > 500 ms"
+        for: 1m             
+        labels:
+          severity: critical
+        annotations:
+          summary: "p99 latency > 500 ms"
 
-  - alert: HighPostgresRPS
-  expr: |
-    sum(
-      rate(pg_stat_database_xact_commit{datname="postgres"}[30s])
-      + rate(pg_stat_database_xact_rollback{datname="postgres"}[30s])
-    ) > 100
-  for: 30s
-  labels:
-    severity: critical
-  annotations:
-    summary: "DB RPS > 100"
+      - alert: HighPostgresRPS
+        expr: |
+          sum(
+            rate(pg_stat_database_xact_commit{datname="postgres"}[30s])
+            + rate(pg_stat_database_xact_rollback{datname="postgres"}[30s])
+          ) > 100
+        for: 30s           
+        labels:
+          severity: critical
+        annotations:
+          summary: "DB RPS > 100"
