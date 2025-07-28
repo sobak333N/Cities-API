@@ -2,6 +2,7 @@ from aiohttp import web
 from prometheus_client import (
     Counter, Histogram, Gauge,
     generate_latest, CONTENT_TYPE_LATEST,
+    CollectorRegistry, multiprocess
 )
 
 REQ_TOTAL = Counter(
@@ -24,10 +25,13 @@ INFLIGHT = Gauge(
 
 @web.middleware
 async def prom_middleware(request: web.Request, handler):
-    route = request.match_info.route.resource.canonical if request.match_info.route else "unknown"
+    route = (
+        request.match_info.route.resource.canonical
+        if request.match_info.route else "unknown"
+    )
     INFLIGHT.inc()
     try:
-        with LATENCY.labels(handler=route).time():      
+        with LATENCY.labels(handler=route).time():
             resp = await handler(request)
     finally:
         INFLIGHT.dec()
@@ -40,8 +44,11 @@ async def prom_middleware(request: web.Request, handler):
     return resp
 
 async def metrics_endpoint(request):
+    registry = CollectorRegistry()
+    multiprocess.MultiProcessCollector(registry)
+    data = generate_latest(registry)
     return web.Response(
-        body=generate_latest(),
+        body=data,
         headers={"Content-Type": CONTENT_TYPE_LATEST},
     )
 

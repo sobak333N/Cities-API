@@ -50,7 +50,7 @@ docker compose up
 |---------------|---------------|
 | `http://localhost/api/docs` | **http://51.250.88.180/api/docs** |
 | `http://localhost/metrics` | **http://51.250.88.180/metrics** |
-| `http://localhost/ui` | **http://51.250.88.180/ui** |
+| `http://localhost:8081/ui` | **http://51.250.88.180:8081/ui** |
 | `http://localhost:9090` | **http://51.250.88.180:9090** |
 | `http://localhost:3000` | **http://51.250.88.180:3000** |
 
