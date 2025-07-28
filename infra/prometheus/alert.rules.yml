@@ -9,7 +9,7 @@ groups:
               rate(http_request_duration_seconds_bucket{handler="/city/get/"}[30s])
             ) by (le)
           ) > 0.5
-        for: 1m             
+        for: 5s             
         labels:
           severity: critical
         annotations:
@@ -21,7 +21,7 @@ groups:
             rate(pg_stat_database_xact_commit{datname="postgres"}[30s])
             + rate(pg_stat_database_xact_rollback{datname="postgres"}[30s])
           ) > 100
-        for: 30s           
+        for: 5s           
         labels:
           severity: critical
         annotations:

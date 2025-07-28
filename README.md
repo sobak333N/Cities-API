@@ -100,7 +100,7 @@ curl -X POST -F rps=150 -F duration=60 http://51.250.88.180/start
 
 ### 4.3 Алерты
 
-Все алерты настроены и отправляются в Telegram-бота по ссылке: [t.me/alerts_cities](https://t.me/alerts_cities).
+Все алерты настроены и отправляются в Telegram-бота по ссылке: [t.me/alerts_cities](https://t.me/alerts_cities)
 
 1. **HighPostgresRPS**  
    - **Условие**:  
@@ -110,8 +110,8 @@ curl -X POST -F rps=150 -F duration=60 http://51.250.88.180/start
        + rate(pg_stat_database_xact_rollback{datname="postgres"}[30s])
      ) > 100
      ```  
-   - **for**: 30 s непрерывно (для отработки нагрузки `duration ≥ 30`)  
-   - **Описание**: RPS БД выше 100  
+   - **for**: 5s непрерывно *(для отработки нагрузки `duration ≥ 5s`)*  
+   - **Описание**: RPS БД выше 100
 
 2. **HighP99Latency**  
    - **Условие**:  
@@ -123,5 +123,5 @@ curl -X POST -F rps=150 -F duration=60 http://51.250.88.180/start
        ) by (le)
      ) > 0.5
      ```  
-   - **for**: 1 m непрерывно (для отработки нагрузки `duration ≥ 60`)  
-   - **Описание**: p99 latency свыше 500 ms  
+   - **for**: 5s непрерывно *(для отработки нагрузки `duration ≥ 5s`)*  
+   - **Описание**: p99 latency свыше 500 ms
