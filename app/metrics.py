@@ -1,9 +1,14 @@
 from aiohttp import web
+import os
 from prometheus_client import (
     Counter, Histogram, Gauge,
     generate_latest, CONTENT_TYPE_LATEST,
     CollectorRegistry, multiprocess
 )
+
+PROM_DIR = os.environ.get("PROMETHEUS_MULTIPROC_DIR")
+if not PROM_DIR:
+    raise RuntimeError("PROMETHEUS_MULTIPROC_DIR is not set")
 
 REQ_TOTAL = Counter(
     "http_requests_total",
