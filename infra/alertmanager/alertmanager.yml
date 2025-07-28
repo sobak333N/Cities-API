@@ -12,7 +12,7 @@ receivers:
   - name: 'telegram'
     telegram_configs:
       - bot_token:   ${TELEGRAM_BOT_TOKEN}
-        chat_id:     ${TELEGRAM_CHAT_ID}
+        chat_id:     -1002808461142
         message:     |
           🚨 *Alert:* {{ .CommonAnnotations.summary }}
           • *Alert name:* {{ .CommonLabels.alertname }}
