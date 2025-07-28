@@ -13,4 +13,5 @@ RUN pip install --upgrade pip \
 
 COPY app/ ./
 
-CMD ["gunicorn", "app.main:init_app()", "-w", "4", "-k", "aiohttp.GunicornWebWorker", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "app.main:init_app", "-w", "4", "-k", "aiohttp.GunicornWebWorker", "--bind", "0.0.0.0:8000"]
+
