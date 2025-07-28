@@ -14,10 +14,11 @@ receivers:
       - bot_token:   "8350074658:AAGJ8Vw-DLqtYEouAcZoafnFmmmS5PhPoiU"
         chat_id:     -1002808461142
         parse_mode:  MarkdownV2
-        message:     |
-          🚨 *Alert:* {{ .CommonAnnotations.summary }}
-          • *Name:* {{ .CommonLabels.alertname }}
-          • *Severity:* {{ .CommonLabels.severity }}
-          • *Instance:* {{ .CommonLabels.instance }}
-          • *Time:* {{ .Alerts.Firing | first .StartsAt }}
-
+        message: |
+          {{ range .Alerts }}
+          🚨 *Alert:* {{ .Annotations.summary }}
+          • *Name:* {{ .Labels.alertname }}
+          • *Severity:* {{ .Labels.severity }}
+          • *Instance:* {{ .Labels.instance }}
+          • *Time:* {{ .StartsAt }}
+          {{ end }}
