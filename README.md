@@ -79,31 +79,49 @@ curl -X POST -F rps=150 -F duration=60 http://51.250.88.180/start
 ```
 
 ## 4. Мониторинг: Prometheus + Grafana
-### 4.1  Метрики, которые уже собираются
 
-* **HTTP** — `http_requests_total`, `http_request_duration_seconds_*`
-* **PostgreSQL** — `pg_stat_database_xact_commit/rollback`
-* **Runtime** — `python_gc_*`, `process_*`, `go_*` (Prometheus)
+### 4.1 Метрики, которые уже собираются
 
-### 4.3  Панели дашборда *o11y-check*
+- **HTTP**: `http_requests_total`, `http_request_duration_seconds_*`  
+- **PostgreSQL**: `pg_stat_database_xact_commit/rollback`  
+- **Runtime**: `python_gc_*`, `process_*`, `go_*`  
 
-| Панель          | Запрос (PromQL)                                                                                   |
-|-----------------|----------------------------------------------------------------------------------------------------|
-| **HTTP RPS**    | `sum(rate(http_requests_total{handler="/city/get/"}[3s]))`                                         |
-| **DB RPS**      | `sum(rate(pg_stat_database_xact_commit[3s]) + rate(pg_stat_database_xact_rollback[3s]))`           |
-| **p99 latency** | `histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{handler="/city/get/"}[30s])) by (le))` |
+### 4.2 Панели дашборда *o11y-check*
 
-*Min interval* для каждой панели выставлен **1 s**, refresh — 1 s.
+| Панель          | Запрос (PromQL)                                                                                                |
+| --------------- | -------------------------------------------------------------------------------------------------------------- |
+| **HTTP RPS**    | `sum(rate(http_requests_total{handler="/city/get/"}[3s]))`                                                     |
+| **DB RPS**      | `sum(rate(pg_stat_database_xact_commit[2s]) + rate(pg_stat_database_xact_rollback[2s]))`                       |
+| **p99 latency** | `histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{handler="/city/get/"}[2s])) by (le))` |
 
-#### Известная проблема с RPS-графиками
+*Min interval*: **1s**, *refresh*: **1s**.
 
-Сервис при большом RPS ( >`≈ 25–30` ) успевает отдавать не все запросы в секунду  
-— из-за двух SQL-запросов на одну ручку и однопоточного воркера.  
-Поэтому при вводе «150 RPS × 60 s» фактическая линия опускается до ~30.  
-Метрики и формулы проверены; расхождение связано именно с производительностью приложения, а не с Prometheus.
+> **Примечание**: Grafana усредняет точки по времени, поэтому графики могут немного «скруглять» пики.
 
-### 4.4  Алерты
+### 4.3 Алерты
 
-> **Алёрты пока не настроены.**  
-> В конфиге `alert.rules.yml` оставлены заготовки, но они не подключены к Alertmanager / Telegram-боту.  
-> В будущем планируется   `HighP99Latency` (p99 > 500 ms) и `HighPostgresRPS` (DB RPS > 100).
+Все алерты настроены и отправляются в Telegram-бота по ссылке: [t.me/alerts_cities](https://t.me/alerts_cities).
+
+1. **HighPostgresRPS**  
+   - **Условие**:  
+     ```promql
+     sum(
+       rate(pg_stat_database_xact_commit{datname="postgres"}[30s])
+       + rate(pg_stat_database_xact_rollback{datname="postgres"}[30s])
+     ) > 100
+     ```  
+   - **for**: 30 s непрерывно (для отработки нагрузки `duration ≥ 30`)  
+   - **Описание**: RPS БД выше 100  
+
+2. **HighP99Latency**  
+   - **Условие**:  
+     ```promql
+     histogram_quantile(
+       0.99,
+       sum(
+         rate(http_request_duration_seconds_bucket{handler="/city/get/"}[30s])
+       ) by (le)
+     ) > 0.5
+     ```  
+   - **for**: 1 m непрерывно (для отработки нагрузки `duration ≥ 60`)  
+   - **Описание**: p99 latency свыше 500 ms  
