@@ -9,14 +9,10 @@ route:
   receiver: 'telegram'
 
 receivers:
-  - name: 'telegram'
+  - name: telegram
     telegram_configs:
-      - bot_token: 8350074658:AAGJ8Vw-DLqtYEouAcZoafnFmmmS5PhPoiU
-        chat_id: -1002808461142
-        message:     |
-          🚨 *Alert:* {{ .CommonAnnotations.summary }}
-          • *Alert name:* {{ .CommonLabels.alertname }}
-          • *Severity:* {{ .CommonLabels.severity }}
-          • *Instance:* {{ .CommonLabels.instance }}
-          • *Time:* {{ .Alerts.Firing | first .StartsAt }}
-        parse_mode: MarkdownV2
+      - bot_token:   "8350074658:AAGJ8Vw-DLqtYEouAcZoafnFmmmS5PhPoiU"
+        chat_id:     -1002808461142
+        parse_mode:  MarkdownV2
+        message:     "🚨 *Alert:* {{ .CommonAnnotations.summary }}"
+
