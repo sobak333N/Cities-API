@@ -30,11 +30,15 @@ services:
     networks: [app-network]
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./db/postgresql.conf.extra:/etc/postgresql/postgresql.conf.extra:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    command: >-
+      postgres -c 'config_file=/etc/postgresql/postgresql.conf'
+               -c 'include_if_exists=/etc/postgresql/postgresql.conf.extra'
 
   nginx:
     image: nginx:alpine
