@@ -12,8 +12,13 @@ groups:
       summary: "p99 latency > 500 ms"
 
   - alert: HighPostgresRPS
-    expr: sum(rate(pg_stat_activity_count{state="active"}[30s])) > 100
-    for: 30s
-    labels: { severity: "critical" }
-    annotations:
-      summary: "DB RPS > 100"
+  expr: |
+    sum(
+      rate(pg_stat_database_xact_commit{datname="postgres"}[30s])
+      + rate(pg_stat_database_xact_rollback{datname="postgres"}[30s])
+    ) > 100
+  for: 30s
+  labels:
+    severity: critical
+  annotations:
+    summary: "DB RPS > 100"
